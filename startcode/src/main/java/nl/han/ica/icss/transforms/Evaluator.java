@@ -9,6 +9,8 @@ import nl.han.ica.icss.ast.literals.ScalarLiteral;
 import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
+import nl.han.ica.icss.ast.literals.BoolLiteral;
+import java.util.ArrayList;
 
 import java.util.HashMap;
 
@@ -38,9 +40,22 @@ public class Evaluator implements Transform {
         variableValues.removeFirst();
     }
 
-    private void transformNodes(Iterable<ASTNode> nodes) {
-        for (ASTNode node : nodes) {
-            transformNode(node);
+    private void transformNodes(ArrayList<ASTNode> nodes) {
+        for (int i = 0; i < nodes.size(); i++) {
+            ASTNode node = nodes.get(i);
+
+            if (node instanceof IfClause) {
+                IfClause ifClause = (IfClause) node;
+
+                ArrayList<ASTNode> selectedNodes = transformIfClause(ifClause);
+
+                nodes.remove(i);
+                nodes.addAll(i, selectedNodes);
+
+                i += selectedNodes.size() - 1;
+            } else {
+                transformNode(node);
+            }
         }
     }
 
@@ -68,13 +83,28 @@ public class Evaluator implements Transform {
         }
     }
 
-    private void transformIfClause(IfClause ifClause) {
-        // TR02 wordt in de volgende stap geïmplementeerd.
-        transformNodes(ifClause.body);
+    private ArrayList<ASTNode> transformIfClause(IfClause ifClause) {
+        ArrayList<ASTNode> selectedNodes = new ArrayList<>();
 
-        if (ifClause.elseClause != null) {
-            transformNodes(ifClause.elseClause.body);
+        Literal condition = evaluateExpression(ifClause.conditionalExpression);
+
+        if (!(condition instanceof BoolLiteral)) {
+            return selectedNodes;
         }
+
+        boolean isTrue = ((BoolLiteral) condition).value;
+
+        if (isTrue) {
+            selectedNodes.addAll(ifClause.body);
+        } else if (ifClause.elseClause != null) {
+            selectedNodes.addAll(ifClause.elseClause.body);
+        }
+
+        enterScope();
+        transformNodes(selectedNodes);
+        exitScope();
+
+        return selectedNodes;
     }
 
     private Literal evaluateExpression(Expression expression) {
