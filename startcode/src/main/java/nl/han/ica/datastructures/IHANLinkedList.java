@@ -48,4 +48,6 @@ public interface IHANLinkedList<T> {
      * @return number of items in list
      */
     int getSize();
+
+    boolean isEmpty();
 }
