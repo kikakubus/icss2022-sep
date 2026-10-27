@@ -8,7 +8,7 @@ public interface IHANLinkedList<T> {
     void addFirst(T value);
 
     /**
-     * Clears list. Size equals 0 afterwards
+     * Clears list. Size equals 0 afterward
      */
     void clear();
 
@@ -48,6 +48,4 @@ public interface IHANLinkedList<T> {
      * @return number of items in list
      */
     int getSize();
-
-    boolean isEmpty();
 }

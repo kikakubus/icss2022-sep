@@ -45,9 +45,4 @@ public class HANLinkedList<T> implements IHANLinkedList<T> {
     public int getSize() {
         return list.size();
     }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
 }
